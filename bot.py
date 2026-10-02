@@ -1,96 +1,53 @@
 import os
+import re
 import requests
+from datetime import date
 
 TOKEN = os.environ["BOT_TOKEN"]
 CHANNEL = "@sookoote_sard"
+POST_HOUR = int(os.environ.get("POST_HOUR", "23"))
 
-posts = {
-    "morning": """🌅 صبح بخیر
+# تاریخ شروع چرخه 1000 روزه
+START_DATE = date(2026, 10, 2)
 
-امروز قرار نیست همه‌چیز را یک‌دفعه درست کنی.
-فقط یک قدم بردار...
-همین یک قدم می‌تواند شروع یک اتفاق خوب باشد.
-
-به خدا توکل کن؛
-شاید امروز همان روزی باشد که منتظرش بودی. 🤍
-
-@sookoote_sard""",
-
-    "noon": """☀️
-
-وسط شلوغی‌های روز،
-گاهی چند لحظه مکث کن...
-
-نفس عمیق بکش،
-دلت را آرام کن
-و یادت باشد:
-همه چیز قرار نیست با عجله حل شود.
-
-خدا آرام‌تر از چیزی که فکر می‌کنی
-جوابت را می‌دهد. 🌿
-
-@sookoote_sard""",
-
-    "afternoon": """🌿
-
-اگر امروز خسته‌ای،
-اگر چیزی ذهنت را درگیر کرده،
-خودت را سرزنش نکن.
-
-تو تا همین‌جا هم خیلی چیزها را پشت سر گذاشتی.
-
-کمی آرام بگیر...
-خدا هنوز کنار توست. 🤍
-
-@sookoote_sard""",
-
-    "evening": """🌆
-
-گاهی یک غروب آرام،
-یک موسیقی خوب
-و چند دقیقه سکوت
-می‌تواند حال آدم را عوض کند.
-
-امروز هرچقدر هم سخت گذشته،
-بگذار تمام شود.
-
-فردا می‌تواند شروع تازه‌ای باشد. ❤️
-
-@sookoote_sard""",
-
-    "night": """🌙
-
-قبل از خواب
-همه نگرانی‌هایت را برای چند دقیقه کنار بگذار.
-
-چشم‌هایت را ببند و بگو:
-
-خدایا...
-آنچه از توان من خارج است
-به تو می‌سپارم.
-
-دلم را آرام کن
-و فردایم را بهتر از امروزم قرار بده. 🤍
-
-شبت آرام.
-
-@sookoote_sard"""
+# مشخص کردن نوبت
+slots = {
+    8: "صبح",
+    12: "ظهر",
+    17: "عصر",
+    20: "غروب",
+    23: "شب"
 }
 
-# انتخاب متن بر اساس زمان اجرای GitHub Actions
-hour = int(os.environ.get("POST_HOUR", "23"))
+slot_name = slots.get(POST_HOUR, "شب")
 
-if hour == 8:
-    message = posts["morning"]
-elif hour == 12:
-    message = posts["noon"]
-elif hour == 17:
-    message = posts["afternoon"]
-elif hour == 20:
-    message = posts["evening"]
-else:
-    message = posts["night"]
+# شماره روز از شروع برنامه
+today = date.today()
+day_number = (today - START_DATE).days + 1
 
+# نگه داشتن شماره روز در محدوده 1 تا 1000
+day_number = ((day_number - 1) % 1000) + 1
+
+# خواندن بانک 5000 متن
+with open("sokoot_sard_1000_days.txt", "r", encoding="utf-8") as f:
+    content = f.read()
+
+# پیدا کردن متن مربوط به روز و نوبت
+pattern = (
+    rf"===== روز {day_number} \| {re.escape(slot_name)} =====\n"
+    rf"(.*?)(?=\n===== روز |\Z)"
+)
+
+match = re.search(pattern, content, re.DOTALL)
+
+if not match:
+    raise Exception(
+        f"متن روز {day_number} و نوبت {slot_name} پیدا نشد."
+    )
+
+message = match.group(1).strip()
+
+# ارسال به تلگرام
 url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
 response = requests.post(
@@ -103,3 +60,6 @@ response = requests.post(
 )
 
 print(response.text)
+
+if not response.ok:
+    raise Exception("ارسال پیام به تلگرام ناموفق بود.")
