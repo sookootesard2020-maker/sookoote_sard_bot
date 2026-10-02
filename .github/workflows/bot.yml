@@ -1,7 +1,19 @@
-name: Telegram Bot Test
+name: Telegram Bot
 
 on:
   workflow_dispatch:
+
+  schedule:
+    - cron: "0 5 * * *"
+      timezone: "Asia/Tehran"
+    - cron: "0 9 * * *"
+      timezone: "Asia/Tehran"
+    - cron: "0 14 * * *"
+      timezone: "Asia/Tehran"
+    - cron: "0 17 * * *"
+      timezone: "Asia/Tehran"
+    - cron: "30 19 * * *"
+      timezone: "Asia/Tehran"
 
 jobs:
   post:
