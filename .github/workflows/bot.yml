@@ -24,14 +24,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      - run: python bot.py
+      - name: Morning post
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '30 5 * * *'
+        run: python bot.py
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          POST_HOUR: "8"
+
+      - name: Noon post
+        if: github.event_name == 'schedule' && github.event.schedule == '30 9 * * *'
+        run: python bot.py
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          POST_HOUR: "12"
+
+      - name: Afternoon post
+        if: github.event_name == 'schedule' && github.event.schedule == '30 14 * * *'
+        run: python bot.py
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          POST_HOUR: "17"
+
+      - name: Evening post
+        if: github.event_name == 'schedule' && github.event.schedule == '30 17 * * *'
+        run: python bot.py
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          POST_HOUR: "20"
+
+      - name: Night post
+        if: github.event_name == 'schedule' && github.event.schedule == '0 20 * * *'
+        run: python bot.py
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          POST_HOUR: "23"
