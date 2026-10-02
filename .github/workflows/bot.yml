@@ -4,15 +4,19 @@ on:
   workflow_dispatch:
 
   schedule:
-    - cron: "0 5 * * *"
+    - cron: "30 5 * * *"
       timezone: "Asia/Tehran"
-    - cron: "0 9 * * *"
+
+    - cron: "30 9 * * *"
       timezone: "Asia/Tehran"
-    - cron: "0 14 * * *"
+
+    - cron: "30 14 * * *"
       timezone: "Asia/Tehran"
-    - cron: "0 17 * * *"
+
+    - cron: "30 17 * * *"
       timezone: "Asia/Tehran"
-    - cron: "30 19 * * *"
+
+    - cron: "0 20 * * *"
       timezone: "Asia/Tehran"
 
 jobs:
