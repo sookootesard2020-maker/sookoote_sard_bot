@@ -64,11 +64,9 @@ posts = {
                     و همین یعنی هنوز امید هست. 🤍
 
                     @ sookoote_sard"""
-                    }
+message = posts.get(SLOT, posts["night"])
 
-                    message = posts.get(SLOT, posts["night"])
-
-                    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
                     response = requests.post(
                         url,
